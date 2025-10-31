@@ -59,7 +59,7 @@ def main():
 
     base_url = os.environ.get('OPENAI_BASE_URL','https://ark.cn-beijing.volces.com/api/v3')
     api_key = os.environ.get('OPENAI_API_KEY')
-    model = args.llm_model or os.environ.get('OPENAI_MODEL','doubao-seed-1-6-vision-250815')
+    model = args.llm_model or os.environ.get('OPENAI_MODEL','doubao-1-5-thinking-vision-pro-250428')
     if not api_key and not bool(args.replay_from_logs):
         print('ERROR: OPENAI_API_KEY not set', file=sys.stderr); return
 
