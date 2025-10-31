@@ -13,8 +13,7 @@ LLM‑driven PDF layout extraction (figures + text blocks) and Markdown interlea
 
 - OpenAI-compatible Chat Completions only.
 - Must support: `response_format={"type":"json_object"}` and vision `image_url` data URI.
-- Example model names:
-  - `doubao-seed-1-6-vision-250815` (tested via an OpenAI-compatible endpoint)
+- Recommended model: `doubao-1-5-thinking-vision-pro-250428`.
 
 > Tip: Set `OPENAI_BASE_URL` to your provider's endpoint. The scripts do not use the OpenAI SDK directly; they send HTTP requests to a compatible `/chat/completions` API.
 
@@ -33,14 +32,14 @@ pip install opencv-python-headless Pillow numpy
 
 - `OPENAI_API_KEY` (required)
 - `OPENAI_BASE_URL` (default: `https://ark.cn-beijing.volces.com/api/v3`)
-- `OPENAI_MODEL` (optional; default: `doubao-seed-1-6-vision-250815`, can be overridden by `--llm-model`)
+- `OPENAI_MODEL` (optional; default: `doubao-1-5-thinking-vision-pro-250428`, can be overridden by `--llm-model`)
 
 Examples (bash)
 
 ```bash
 export OPENAI_API_KEY=...
 export OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
-export OPENAI_MODEL=doubao-seed-1-6-vision-250815
+export OPENAI_MODEL=doubao-1-5-thinking-vision-pro-250428
 ```
 
 ## Quick Start
@@ -62,8 +61,8 @@ python3 -m unify_llm_interleave.cli_markdown your.pdf
 3) LLM-only (skip linking/absorption/NMS/order-fallback)
 
 ```bash
-unify-llm-layout your.pdf --llm-only
-unify-llm-markdown your.pdf --llm-only
+python3 -m unify_llm_interleave.cli_layout your.pdf --llm-only
+python3 -m unify_llm_interleave.cli_markdown your.pdf --llm-only
 ```
 
 ## Selected CLI (layout)
@@ -93,7 +92,7 @@ Outputs (under `out_interleave_llm/<doc_stem>/`)
 - `--md-col-gap-frac`: column split gap (x-fraction of page width; default 0.08)
 - `--md-max-cols`: at most columns to detect (default 3)
 - `--md-col-min-blocks`: min text blocks to attempt column detection (default 6)
-- `--repair-math-macros`: whitelist-based repair of missing backslashes inside math (`off|moderate|aggressive`, default `moderate`). `aggressive` 还会包含希腊字母、更多宏名。
+- `--repair-math-macros`: whitelist-based repair of missing backslashes inside math (`off|moderate|aggressive`, default `moderate`). In `aggressive`, additional macro names and Greek letters are considered.
 
 Column detection uses x-center clustering with a gap threshold (`--md-col-gap-frac`) and reorders blocks column-wise (left→right) then top→bottom. Tune `--md-col-min-blocks`, `--md-col-gap-frac`, and `--md-max-cols` as needed.
 
