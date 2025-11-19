@@ -74,7 +74,6 @@ def generate_markdown(pdf_path: Path, out_dir: Path, *, embed_full_page: bool=Fa
         raise FileNotFoundError(f'Missing layout file: {layout_path}')
 
     lines: List[str] = []
-    lines.append(f'# {pdf_path.name}')
 
     recs: List[dict] = []
     with layout_path.open('r', encoding='utf-8') as f:
@@ -91,7 +90,6 @@ def generate_markdown(pdf_path: Path, out_dir: Path, *, embed_full_page: bool=Fa
             continue
         w, h = rec['page_size']
         engine = rec.get('engine','')
-        lines.append(f"\n## Page {rec['page_index']} ({w}×{h}, {engine})\n")
 
         page_png = out_dir / f"page_{int(rec['page_index']):03d}.png"
         img = _read_img(page_png) if page_png.exists() else None

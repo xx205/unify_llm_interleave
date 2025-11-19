@@ -64,8 +64,9 @@ def main():
         print('ERROR: OPENAI_API_KEY not set', file=sys.stderr); return
 
     # update proxy behavior
-    import unify_llm_interleave.layout as lay
-    lay.NO_PROXY_FOR_LLM = not bool(args.llm_allow_proxy)
+    # update proxy behavior
+    import unify_llm_interleave.llm_client as lc
+    lc.NO_PROXY_FOR_LLM = not bool(args.llm_allow_proxy)
 
     out_root = Path(args.out); out_root.mkdir(exist_ok=True)
     pdfs: List[Path]=[]

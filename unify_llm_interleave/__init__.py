@@ -24,10 +24,16 @@ from .common import (
 )
 
 from .layout import (
+    process_pdf,
+)
+
+from .llm_client import (
     NO_PROXY_FOR_LLM,
     llm_call,
-    process_pdf,
-    _absorb_into_figures,
+)
+
+from .refinement import (
+    absorb_into_figures as _absorb_into_figures,
 )
 
 __all__ = [

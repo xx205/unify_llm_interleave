@@ -5,6 +5,22 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set
 import threading
+import base64
+from typing import Dict, List, Optional, Set, Tuple
+
+try:
+    import fitz  # PyMuPDF
+    _HAS_FITZ = True
+except ImportError:
+    fitz = None
+    _HAS_FITZ = False
+
+try:
+    import cv2
+    _HAS_CV2 = True
+except ImportError:
+    _HAS_CV2 = False
+
 
 # -------------- Tunables / Defaults --------------
 MAX_LLM_SIDE = 1800
@@ -514,3 +530,41 @@ def _score_tb_to_fig(tb_bb: List[int], fig_bb: List[int], role: str) -> float:
     w_center = 0.3
     from .common import _iou as _iou_local  # avoid circular names when imported *
     return w_vert * vert_gap + w_center * center_dist - 20.0 * _iou_local(tb_bb, fig_bb)
+
+
+def _bytes_to_data_url(data: bytes, mime: str) -> str:
+    b64 = base64.b64encode(data).decode('ascii')
+    return f'data:{mime};base64,{b64}'
+
+
+def _pix_to_encoded(pix: 'fitz.Pixmap', fmt: str = 'jpeg', jpeg_quality: int = DEFAULT_JPEG_QUALITY) -> Tuple[bytes, str]:
+    f = (fmt or 'jpeg').lower()
+    if f in ('jpg', 'jpeg'):
+        try:
+            p = pix
+            if getattr(p, 'alpha', 0):
+                p = fitz.Pixmap(fitz.csRGB, p)
+            data = p.tobytes('jpg', quality=int(jpeg_quality))
+            return data, 'image/jpeg'
+        except Exception:
+            pass
+    try:
+        data = pix.tobytes('png')
+        return data, 'image/png'
+    except Exception:
+        if _HAS_CV2:
+            try:
+                import numpy as _np
+                arr = _np.frombuffer(pix.samples, dtype=_np.uint8)
+                img = arr.reshape((pix.height, pix.width, pix.n))
+                if pix.n == 4:
+                    img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGRA)
+                elif pix.n == 3:
+                    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                ok, buf = cv2.imencode('.png', img)
+                if ok:
+                    return buf.tobytes(), 'image/png'
+            except Exception:
+                pass
+        return b'', 'application/octet-stream'
+

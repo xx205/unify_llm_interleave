@@ -1,6 +1,8 @@
 
 # unify-llm-interleave
 
+> **Purpose**: This repository serves as a testbed to evaluate the capability of generic VLMs (Vision-Language Models) to perform specialized document understanding tasks. While specialized models like DeepSeek-OCR, dots.ocr, Chandra OCR, or OlmOCR 2 often achieve higher accuracy and stability, this project explores the limits of general-purpose models combined with sophisticated post-processing heuristics. The modular pipeline architecture allows for easy comparison between generic VLMs and specialized OCR engines.
+
 LLM‑driven PDF layout extraction (figures + text blocks) and Markdown interleaving. Turn complex scientific PDFs into clean, column‑aware Markdown with images and captions in the right order.
 
 - `unify_llm_interleave/` package
@@ -61,8 +63,20 @@ python3 -m unify_llm_interleave.cli_markdown your.pdf
 3) LLM-only (skip linking/absorption/NMS/order-fallback)
 
 ```bash
-python3 -m unify_llm_interleave.cli_layout your.pdf --llm-only
 python3 -m unify_llm_interleave.cli_markdown your.pdf --llm-only
+```
+
+4) **Rich Output & Debugging (Recommended for Analysis)**
+   Use this command to generate comprehensive visualizations, debug overlays, and strictly captured figures. This is ideal for verifying model performance.
+
+```bash
+python3 -m unify_llm_interleave.cli_markdown your.pdf \
+    --zoom 3 \
+    --include-figures \
+    --viz --viz-text-blocks --viz-absorb-debug \
+    --strict-figure-capture \
+    --md-col-detect \
+    --jobs 4
 ```
 
 ## Selected CLI (layout)
