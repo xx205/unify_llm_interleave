@@ -146,6 +146,7 @@ def generate_markdown(pdf_path: Path, out_dir: Path, *, embed_full_page: bool=Fa
                 pass
         # track any additional normalization changes at markdown stage (all roles)
         md_changes: List[dict] = []
+        used_figs = set()
         for tb in tbs:
             role = tb.get('role','paragraph')
             text = tb.get('text','')
@@ -168,9 +169,23 @@ def generate_markdown(pdf_path: Path, out_dir: Path, *, embed_full_page: bool=Fa
                     uri = _png_to_data_uri(crop)
                     if uri:
                         lines.append(f'![{tb.get("ref")}]({uri})')
+                        used_figs.add(tb.get('ref'))
                 lines.append(text)
             else:
                 lines.append(text)
+
+        # Add any remaining figure regions that were not paired with captions
+        if img is not None:
+            for fid, bb in fig_map.items():
+                if fid in used_figs:
+                    continue
+                crop = _crop(img, bb)
+                if crop is None:
+                    continue
+                uri = _png_to_data_uri(crop)
+                if uri:
+                    lines.append('')
+                    lines.append(f'![{fid}]({uri})')
 
         # write page-level markdown escape change logs if any
         try:
