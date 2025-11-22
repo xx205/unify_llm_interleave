@@ -11,7 +11,14 @@ from .common import LayoutConfig, MAX_LLM_SIDE, DEFAULT_JPEG_QUALITY
 
 
 def main():
-    parser = argparse.ArgumentParser(description='LLM layout (figures + text_blocks) → JSONL + overlays')
+    # Avoid UnicodeEncodeError on Windows consoles with cp1252/gbk defaults.
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
+    parser = argparse.ArgumentParser(description='LLM layout (figures + text_blocks) -> JSONL + overlays')
     parser.add_argument('inputs', nargs='*')
     parser.add_argument('--out', default='out_interleave_llm')
     parser.add_argument('--zoom', type=float, default=2.0)

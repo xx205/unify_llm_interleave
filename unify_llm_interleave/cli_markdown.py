@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 from typing import List
+import sys
 
 from .layout import process_pdf
 from .markdown import generate_markdown
@@ -11,7 +12,14 @@ from .common import LayoutConfig, MAX_LLM_SIDE, DEFAULT_JPEG_QUALITY
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Layout → Markdown with image–text interleaving')
+    # Avoid UnicodeEncodeError on Windows consoles with cp1252/gbk defaults.
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
+    parser = argparse.ArgumentParser(description='Layout -> Markdown with image-text interleaving')
     parser.add_argument('inputs', nargs='*')
     parser.add_argument('--out', default='out_interleave_llm')
     parser.add_argument('--zoom', type=float, default=2.0)
@@ -89,7 +97,7 @@ def main():
         if args.reuse_existing and layout_file.exists():
             inter = doc_out / 'interleaved.jsonl'
             layout = layout_file
-            print(f"Reusing existing outputs for {pdf.name} → {layout}")
+            print(f"Reusing existing outputs for {pdf.name} -> {layout}")
         else:
             cfg = LayoutConfig(ambiguous_gap_frac=float(args.ambiguous_gap_frac),
                                macro_repair_mode=str(args.repair_math_macros))
